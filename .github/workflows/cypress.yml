@@ -1,0 +1,42 @@
+name: Cypress Tests
+
+on: pull_request
+
+jobs:
+  cypress:
+    name: Cypress run
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/iron"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v5
+        with:
+          start: yarn start 
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 60
+          command: yarn test
+
+      - name: Upload Cypress Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots/**
+
+      - name: Upload Cypress Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-report
+          path: cypress/reports/mochawesome/**
